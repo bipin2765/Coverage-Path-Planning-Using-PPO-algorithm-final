@@ -27,13 +27,12 @@ Developed and tested only on Linux-based systems. In principle, it should also r
 
 ## How to use
 
-Train a new DDQN model with the parameters of your choice in the specified config file for Coverage Path Planning (CPP) or Data Harvesting (DH):
+Train a new PPO model with the parameters of your choice in the specified config file for Coverage Path Planning (CPP):
 
 ```
 python main.py --cpp --gpu --config config/manhattan32_cpp.json --id manhattan32_cpp
-python main.py --dh --gpu --config config/manhattan32_dh.json --id manhattan32_dh
 
---cpp|--dh                  Activates CPP or DH
+--cpp|--dh                  Activates CPP
 --gpu                       Activates GPU acceleration for DDQN training
 --config                    Path to config file in json format
 --id                        Overrides standard name for logfiles and model
@@ -44,26 +43,10 @@ Evaluate a model through Monte Carlo analysis over the random parameter space fo
 
 ```
 
-
-python main_mc.py --dh --weights example/models/manhattan32_dh --config config/manhattan32_dh.json --id manhattan32_dh_mc --samples 1000
-
---cpp|--dh                  Activates CPP or DH
---weights                   Path to weights of trained model
---config                    Path to config file in json format
---id                        Name for exported files
---samples                   Number of Monte Carlo  over random scenario parameters
---seed                      Seed for repeatability
---show                      Pass '--show True' for individual plots of scenarios and allow plot saving
-```
-
 For an example run of pretrained agents the following commands can be used:
 ```
 python main_scenario.py --cpp --config config/manhattan32_cpp.json --weights example/models/manhattan32_cpp --scenario example/scenarios/manhattan_cpp.json --video
 python main_scenario.py --cpp --config config/urban50_cpp.json --weights example/models/urban50_cpp --scenario example/scenarios/urban_cpp.json --video
-
-python main_scenario.py --dh --config config/manhattan32_dh.json --weights example/models/manhattan32_dh --scenario example/scenarios/manhattan_dh.json --video
-python main_scenario.py --dh --config config/urban50_dh.json --weights example/models/urban50_dh --scenario example/scenarios/urban_dh.json --video
-```
 
 ## Resources
 
