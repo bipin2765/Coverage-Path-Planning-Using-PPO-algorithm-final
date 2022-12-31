@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def shape(exp):
     if type(exp) is np.ndarray:
         return list(exp.shape)

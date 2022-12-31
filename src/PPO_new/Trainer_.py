@@ -33,8 +33,3 @@ class PPOTrainer(Trainer):
         if self.replay_memory.full:
             self.agent.train(self.replay_memory.memory)
             self.replay_memory.reset()
-
-
-
-
-

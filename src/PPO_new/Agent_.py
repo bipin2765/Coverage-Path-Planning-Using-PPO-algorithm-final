@@ -6,12 +6,6 @@ from src.CPP.State import CPPState
 from tensorflow.keras import backend as K
 from tensorflow.keras.optimizers import Adam
 import copy
-from src.PPO_new.Memory_ import ReplayMemory
-
-# Code commit and push
-def print_node(x):
-    print(x)
-    return x
 
 
 class PPOAgentParams:
@@ -40,9 +34,9 @@ class PPOAgent(object):
 
         self.boolean_map_shape = example_state.get_boolean_map_shape()
         self.scalars = example_state.get_num_scalars()
-        self.num_actions = len(type(example_action))
+        #self.num_actions = len(type(example_action))
         self.num_map_channels = self.boolean_map_shape[2]
-        self.scalars = example_state.get_num_scalars()
+        #self.scalars = example_state.get_num_scalars()
         self.action_size = len(type(example_action))
 
         # Create shared inputs
@@ -88,8 +82,6 @@ class PPOAgent(object):
         action_onehot[action] = 1
         return action, action_onehot, prediction
 
-    def store_transition(self, state, action, probs, vals, reward, done):
-        self.memory.store_memory(state, action, probs, vals, reward, done)
 
     def get_gaes(self, rewards, dones, values, next_values, gamma=0.99, lamda=0.9, normalize=True):
         deltas = [r + gamma * (1 - d) * nv - v for r, d, nv, v in zip(rewards, dones, next_values, values)]
@@ -118,13 +110,6 @@ class PPOAgent(object):
                                verbose=0,
                                shuffle=self.shuffle)
 
-    # def save_weights(self):
-    #     self.Actor.model.save_weights(self.params.save_dir + "actor")
-    #     self.Critic.model.save_weights(self.params.save_dir + "critic")
-
-    # def load_weights(self, path_to_weights):
-    #     self.Actor.model.load_weights(path_to_weights + "actor")
-    #     self.Critic.model.load_weights(path_to_weights + "critic")
 
     def train(self, replay_memory):
         states = [np.asarray([state_oi.get_boolean_map() for state_oi in replay_memory[0]]).astype('float32'),
@@ -143,8 +128,7 @@ class PartModel:
         self.params = params
 
     def create_map_proc(self, conv_in, name):
-        global_map = tf.stop_gradient(
-            AvgPool2D((self.params.global_map_scaling, self.params.global_map_scaling))(conv_in))
+        global_map = tf.stop_gradient(AvgPool2D((self.params.global_map_scaling, self.params.global_map_scaling))(conv_in))
 
         self.global_map = global_map
         self.total_map = conv_in
@@ -210,8 +194,7 @@ class Actor(PartModel):
 
     def ppo_loss(self, y_true, y_pred):
         # Defined in https://arxiv.org/abs/1707.06347
-        advantages, prediction_picks, actions = y_true[:, :1], y_true[:, 1:1 + self.action_space], y_true[:,
-                                                                                                   1 + self.action_space:]
+        advantages, prediction_picks, actions = y_true[:, :1], y_true[:, 1:1 + self.action_space], y_true[:,1 + self.action_space:]
         LOSS_CLIPPING = 0.2
         ENTROPY_LOSS = 0.001
 
@@ -253,8 +236,7 @@ class Critic(PartModel):
             y_true=y_true,
             y_pred=out
         ))
-        self.model.compile(loss=None,
-                           optimizer=optimizer(lr=self.params.learning_rate))
+        self.model.compile(loss=None,optimizer=optimizer(lr=self.params.learning_rate))
 
     @staticmethod
     def critic_PPO2_loss(y_true, y_pred, values):
@@ -270,3 +252,5 @@ class Critic(PartModel):
     def predict(self, state):
         final_model = Model([self.model.input[0], self.model.input[1]], self.model.output)
         return final_model.predict([state, np.zeros((state[0].shape[0], 1))])
+
+

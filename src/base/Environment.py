@@ -5,7 +5,7 @@ import distutils.util
 from src.ModelStats import ModelStatsParams, ModelStats
 from src.base.BaseDisplay import BaseDisplay
 from src.base.GridActions import GridActions
-from src.PPO_new.Agent_ import PPOAgent
+
 
 
 class BaseEnvironmentParams:
@@ -48,6 +48,9 @@ class BaseEnvironment:
             bar.update(self.step_count - last_step)
             last_step = self.step_count
             self.train_episode()
+            if self.episode_count % self.trainer.params.eval_period:
+                #print('training finished')
+                self.test_episode()
 
             self.stats.save_if_best()
 
@@ -72,6 +75,21 @@ class BaseEnvironment:
         self.rewards.reset()
         self.physics.reset(state)
         return state
+
+    def test_episode(self, scenario=None):
+        #print('testing started')
+        state = copy.deepcopy(self.init_episode(scenario))
+        self.stats.on_episode_begin(self.episode_count)
+        while not state.terminal:
+            action, action_onehot, prediction = self.agent.act(state)
+            next_state = self.physics.step(GridActions(action))
+            reward = self.rewards.calculate_reward(state, GridActions(action), next_state)
+            self.stats.add_experience((copy.deepcopy(state), action, reward, copy.deepcopy(next_state)))
+            state = copy.deepcopy(next_state)
+
+        self.stats.on_episode_end(self.episode_count)
+        self.stats.log_testing_data(step = self.step_count)
+
 
     def eval(self, episodes, show=False):
         for _ in tqdm.tqdm(range(episodes)):
@@ -110,3 +128,4 @@ class BaseEnvironment:
                 print("Saved as", save_as)
         except ValueError:
             pass
+

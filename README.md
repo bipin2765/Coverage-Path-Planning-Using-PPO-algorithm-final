@@ -9,7 +9,9 @@ py## Table of contents
 
 ## Introduction
 
-This repository contains an implementation of the Proximal Policy Optimization (PPO) approach to control a UAV on a coverage path planning including global-local map processing. The corresponding paper ["UAV Path Planning using Global and Local Map Information with Deep Reinforcement Learning"](https://ieeexplore.ieee.org/abstract/document/9659413) is available on IEEEXplore.
+This repository contains an implementation of the double deep Q-learning (DDQN) approach to control a UAV on a coverage path planning or data harvesting from IoT sensors mission, including global-local map processing. The corresponding paper ["UAV Path Planning using Global and Local Map Information with Deep Reinforcement Learning"](https://ieeexplore.ieee.org/abstract/document/9659413) is available on IEEEXplore. A multi-agent version of the Data Harvesting can be found in ["uav_data_harvesting"](https://github.com/hbayerlein/uav_data_harvesting).
+
+For questions, please contact Mirco Theile via email mirco.theile@tum.de. Please also note that due to github's new naming convention, the 'master' branch is now called 'main' branch.
 
 
 ## Requirements
@@ -27,12 +29,13 @@ Developed and tested only on Linux-based systems. In principle, it should also r
 
 ## How to use
 
-Train a new PPO model with the parameters of your choice in the specified config file for Coverage Path Planning (CPP):
+Train a new DDQN model with the parameters of your choice in the specified config file for Coverage Path Planning (CPP) or Data Harvesting (DH):
 
 ```
 python main.py --cpp --gpu --config config/manhattan32_cpp.json --id manhattan32_cpp
+python main.py --dh --gpu --config config/manhattan32_dh.json --id manhattan32_dh
 
---cpp|--dh                  Activates CPP
+--cpp|--dh                  Activates CPP or DH
 --gpu                       Activates GPU acceleration for DDQN training
 --config                    Path to config file in json format
 --id                        Overrides standard name for logfiles and model
@@ -43,10 +46,26 @@ Evaluate a model through Monte Carlo analysis over the random parameter space fo
 
 ```
 
+
+python main_mc.py --dh --weights example/models/manhattan32_dh --config config/manhattan32_dh.json --id manhattan32_dh_mc --samples 1000
+
+--cpp|--dh                  Activates CPP or DH
+--weights                   Path to weights of trained model
+--config                    Path to config file in json format
+--id                        Name for exported files
+--samples                   Number of Monte Carlo  over random scenario parameters
+--seed                      Seed for repeatability
+--show                      Pass '--show True' for individual plots of scenarios and allow plot saving
+```
+
 For an example run of pretrained agents the following commands can be used:
 ```
 python main_scenario.py --cpp --config config/manhattan32_cpp.json --weights example/models/manhattan32_cpp --scenario example/scenarios/manhattan_cpp.json --video
 python main_scenario.py --cpp --config config/urban50_cpp.json --weights example/models/urban50_cpp --scenario example/scenarios/urban_cpp.json --video
+
+python main_scenario.py --dh --config config/manhattan32_dh.json --weights example/models/manhattan32_dh --scenario example/scenarios/manhattan_dh.json --video
+python main_scenario.py --dh --config config/urban50_dh.json --weights example/models/urban50_dh --scenario example/scenarios/urban_dh.json --video
+```
 
 ## Resources
 
